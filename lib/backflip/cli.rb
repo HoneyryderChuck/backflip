@@ -48,24 +48,25 @@ module Backflip
       Backflip.logger.info "Running in #{RUBY_DESCRIPTION}"
       Backflip.logger.info Backflip::LICENSE
 
-#      fire_event(:startup)
 
       Backflip.logger.debug {
         "Middleware: #{Backflip.server_middleware.map(&:klass).join(', ')}"
       }
 
-#      Backflip.redis do |conn|
-#        # touch the connection pool so it is created before we
-#        # launch the actors.
-#      end
+      Backflip.redis do |conn|
+        # touch the connection pool so it is created before we
+        # launch the actors.
+      end
 
       Backflip.logger.info 'Starting processing, hit Ctrl-C to stop'
 
-#      require 'backflip/launcher'
-#      launcher = Backflip::Launcher.new(options)
+      
+      require 'backflip/cluster'
 
       begin
-#        launcher.run
+        dispatcher = Backflip.dispatcher
+        
+        dispatcher.start
 
         while readable_io = IO.select([self_read])
           signal = readable_io.first[0].gets.strip
@@ -73,8 +74,8 @@ module Backflip
         end
       rescue Interrupt
         Backflip.logger.info 'Shutting down'
-#        launcher.stop
-#        fire_event(:shutdown, true)
+        Backflip.terminate
+        Celluloid.shutdown
         # Explicitly exit so busy Processor threads can't block
         # process shutdown.
         exit(0)
@@ -97,8 +98,7 @@ module Backflip
         raise Interrupt
       when 'USR1'
         Backflip.logger.info "Received USR1, no longer accepting new work"
-#        launcher.manager.async.stop
-#        fire_event(:quiet, true)
+        Backflip.dispatcher.async(:stop)
       when 'TTIN'
         Thread.list.each do |thread|
           Backflip.logger.warn "Thread TID-#{thread.object_id.to_s(36)} #{thread['label']}"
@@ -126,11 +126,9 @@ module Backflip
       # TODO: maybe remove this from here. Celluloid initialization no longer sets up threads
       # and random actors which might cause a fork problem. Require at will, just be sure you 
       # allow forking until you create your first actors. 
-      require 'celluloid/current'
+      require 'celluloid/io'
       Celluloid.logger = (options[:verbose] ? Backflip.logger : nil)
 
-#      require 'backflip/manager'
-#      require 'backflip/scheduled'
     end
 
 
