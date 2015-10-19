@@ -1,3 +1,4 @@
+require 'backflip/unit_of_work'
 module Backflip
   class Dispatcher
     include Celluloid::IO
@@ -119,32 +120,6 @@ module Backflip
       Backflip.logger.warn("Failed to requeue #{inprogress.size} jobs: #{ex.message}")
     end
 
-    UnitOfWork = Class.new do
-      attr_reader :queue, :message
-      def initialize(queue, message)
-        @queue = queue
-        @message = message
-        @condition = Celluloid::Condition.new
-      end
-
-      def suspend
-        @condition.wait
-      end
-
-      def signal
-        @condition.signal 
-      end
-
-      def queue_name
-        queue.gsub(/.*queue:/, '')
-      end
-
-      def requeue
-        Backflip.redis do |conn|
-          conn.rpush("queue:#{queue_name}", message)
-        end
-      end
-    end
 
     # Creating the Redis#brpop command takes into account any
     # configured queue weights. By default Redis#brpop returns

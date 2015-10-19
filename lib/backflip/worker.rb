@@ -6,8 +6,6 @@ module Backflip
   class Worker
     include Celluloid::IO
 
-    finalizer :done
-
     def self.default_middleware
       Middleware::Chain.new do |m|
         m.add Sidekiq::Middleware::Server::Logging
@@ -17,10 +15,6 @@ module Backflip
           m.add Sidekiq::Middleware::Server::ActiveRecord
         end
       end
-    end
-
-    def done
-      puts "worker bye"
     end
 
     def do!(job)
@@ -35,11 +29,9 @@ module Backflip
         work = klass.new
         work.jid = msg['jid'.freeze]
 
-#        stats(worker, msg, queue) do
-          Backflip.server_middleware.invoke(work, msg, queue) do
-            work.perform(*msg['args'.freeze].dup)
-          end
- #       end
+        Backflip.server_middleware.invoke(work, msg, queue) do
+          work.perform(*msg['args'.freeze].dup)
+        end
       rescue Exception => ex
         #handle_exception(ex, msg || { :message => msgstr })
         raise
