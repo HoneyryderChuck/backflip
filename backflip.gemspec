@@ -22,4 +22,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency                  'celluloid-io', '~> 0.17.2'
   gem.add_dependency                  'json', '~> 1.0'
   gem.add_development_dependency      'rake', '~> 10.0'
+  gem.add_development_dependency      'rspec', '~> 3.3.0'
 end
