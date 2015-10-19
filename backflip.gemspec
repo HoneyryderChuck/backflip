@@ -18,7 +18,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency                  'redis', '~> 3.2', '>= 3.2.1'
   gem.add_dependency                  'redis-namespace', '~> 1.5', '>= 1.5.2'
   gem.add_dependency                  'connection_pool', '~> 2.2', '>= 2.2.0'
-  gem.add_dependency                  'celluloid', '~> 0.17.2'
+  gem.add_dependency                  'sidekiq', '~> 3.5', '>= 3.5.0'
+  gem.add_dependency                  'celluloid-io', '~> 0.17.2'
   gem.add_dependency                  'json', '~> 1.0'
   gem.add_development_dependency      'rake', '~> 10.0'
 end
