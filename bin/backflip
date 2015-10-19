@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+# Quiet some warnings we see when running in warning mode:
+# RUBYOPT=-w bundle exec backflip
+$TESTING = false
+$CELLULOID_DEBUG = false
+
+require_relative '../lib/backflip/cli'
+
+begin
+  cli = Backflip::CLI.instance
+  cli.parse
+  cli.run
+rescue => e
+  raise e if $DEBUG
+  STDERR.puts e.message
+  STDERR.puts e.backtrace.join("\n")
+  exit 1
+end
