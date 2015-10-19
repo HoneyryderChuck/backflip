@@ -1,0 +1,9 @@
+.ruby-version
+Gemfile.lock
+*.swp
+dump.rdb
+.rbx
+coverage/
+vendor/
+.bundle/
+tmp/
